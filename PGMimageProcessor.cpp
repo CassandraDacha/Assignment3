@@ -1,77 +1,144 @@
 #include "PGMimageProcessor.h"
 
-
-DCHCAS001::PGMimageProcessor::PGMimageProcessor() : row(0), col(0), id(nullptr)
-{}
-
-DCHCAS001::PGMimageProcessor::PGMimageProcessor(int row, int col, char id) : row(row), col(col),
-id(new char(id))
-{}
-
-DCHCAS001::PGMimageProcessor::~PGMimageProcessor()
-{
-if(this->id != nullptr) // We have to make sure we're not trying
-// to release a bit of memory that doesn't exist.
-{
-delete this->id;
-}
-}
+using namespace std;
+ namespace DCHCAS001{
 
 
-
-DCHCAS001::PGMimageProcessor::PGMimageProcessor(const DCHCAS001::PGMimageProcessor & p) : row(p.row), col(p.col),
-id(nullptr)
+//default destructor
+PGMimageProcessor::PGMimageProcessor() 
+  : row(0)
+  , col(0)
+  , binary_data(nullptr)
 {
-if(p.id != nullptr)
-{
-id = new char(*p.id);
-}
 }
 
-DCHCAS001::PGMimageProcessor& DCHCAS001::PGMimageProcessor::operator=(const DCHCAS001::PGMimageProcessor & rhs)
+//Custom constructor
+PGMimageProcessor::PGMimageProcessor(int row, int col, char binary_data) 
+   :row(row)
+   , col(col)
+   ,binary_data(new unsigned char(binary_data))
 {
-if(this != &rhs) // Checks to make that we are not performing a self-assignment
-{
-this->row = rhs.row;
-this->col = rhs.col;
-if(this->id != nullptr)
-{
-delete this->id; // 'this' may already be managing a bit of
-// memory so we must release it to prevent any memory leaks.
-this->id = nullptr;
 }
-if(rhs.id != nullptr)
+//Destructor
+PGMimageProcessor::~PGMimageProcessor()
 {
-this->id = new char(*rhs.id);
-}
-}
-return *this;
-}
-DCHCAS001::PGMimageProcessor::PGMimageProcessor(DCHCAS001::PGMimageProcessor && p) : row(p.row), col(p.col),
-id(p.id)
-{
-p.id = nullptr;
+    if(this->binary_data != nullptr) // We have to make sure we're not trying
+    // to release a bit of memory that doesn't exist.
+    {
+    delete this->binary_data;
+    }
 }
 
-DCHCAS001::PGMimageProcessor& DCHCAS001::PGMimageProcessor::operator=(DCHCAS001::PGMimageProcessor && rhs)
+//copy constructor
+PGMimageProcessor::PGMimageProcessor(const PGMimageProcessor & p) 
+   : row(p.row)
+   , col(p.col)
+   ,binary_data(nullptr)
+   {
+  if(p.binary_data != nullptr)
+  {
+  binary_data = new unsigned char(*p.binary_data);
+  }
+  }
+  //Copy Assignment Operator
+PGMimageProcessor& PGMimageProcessor::operator=(const PGMimageProcessor& rhs)
 {
-if(this != &rhs) // Checks to make that we are not performing a
-// self-assignment
-{
-this->row = rhs.row;
-this->col = rhs.col;
-if(this->id != nullptr)
-{
-delete this->id; // 'this' may already be managing a bit
-// of memory so we must release it to prevent any memory leaks.
-this->id = nullptr;
+  if(this != &rhs) // Checks to make that we are not performing a self-assignment
+   {
+   this->row = rhs.row;
+   this->col = rhs.col;
+   if(this->binary_data != nullptr)
+    {
+   delete this->binary_data; // 'this' may already be managing a bit of
+   // memory so we must release it to prevent any memory leaks.
+   this->binary_data = nullptr;
+    }
+   if(rhs.binary_data != nullptr)
+    {
+   this->binary_data = new unsigned char(*rhs.binary_data);
+    }
+ }
+ return *this;
 }
-if(rhs.id != nullptr)
+//Move Constructor
+PGMimageProcessor::PGMimageProcessor(PGMimageProcessor && p) 
+	: row(p.row)
+	, col(p.col)
+	,binary_data(p.binary_data)
+	{
+	p.binary_data = nullptr;
+	}
+//Move assignment operator
+PGMimageProcessor& PGMimageProcessor::operator= (PGMimageProcessor && rhs)
 {
-this->id = rhs.id;
-rhs.id = nullptr; // rhs is no longer responsible for the bit
-// of memory 'rhs.id' points to so we set it to nullptr
+	if(this != &rhs) // Checks to make that we are not performing a self-assignment
+	{
+	this->row = rhs.row;
+	this->col = rhs.col;
+	if(this->binary_data != nullptr)
+	{
+	delete this->binary_data; 
+	this->binary_data = nullptr;
+	}
+	if(rhs.binary_data != nullptr)
+	{
+	this->binary_data = rhs.binary_data;
+	rhs.binary_data = nullptr; 
+	}
+	}	
+	return *this;
 }
+//Accessors
+int PGMimageProcessor::getColumn() const
+{
+    return col;
 }
-return *this;
+int PGMimageProcessor::getRow() const
+{
+    return row;
+}
+//Mutators
+void  PGMimageProcessor::setColumn(int col)
+{
+    this->col = col;
+}
+void PGMimageProcessor::setRow(int row)
+{
+    this->row = row;
+}
+void PGMimageProcessor::readImage(ifstream& infile)
+{
+	
+    if (!infile) {
+        cout << "Unable to open file" << endl;
+    }
+    else {
+        cout << "File opened" << endl;
+        string line;
+        int numrows, numcols;
+        int size;
+        bool start = false;
+        while (getline(infile, line)) {
+
+            if (line != "P5" && line != "255" && line.at(0) != '#') {
+                stringstream ss(line);
+                if (start == false) {
+                    ss >> numrows;
+                    ss >> numcols;
+                    cout << numrows << " is " << numcols << endl;
+                    size = numrows * numcols;
+                    start = true;
+                }
+                
+	  cout << "Start reading file data: " << endl;
+          unsigned char *charImage = new unsigned char [size];
+ 
+	  infile.read( reinterpret_cast<char *>(charImage), (size)*sizeof(unsigned char));
+	  cout << "Successfully read " << endl;
+	  infile.close();
+            }
+        }
+    }
+}
+	
 }
