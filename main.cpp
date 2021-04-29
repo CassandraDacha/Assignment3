@@ -4,11 +4,13 @@
 #include <cstring>
 #include <cctype>
 #include <ctype.h>
+#include <memory>
 using namespace std;
 
 int main() {
   int row = 0, col = 0, numrows = 0, numcols = 0;
   fstream infile("chess.pgm",ios::in | ios::out | ios::binary);
+  ofstream myfile("out_chess.pgm",ios::in | ios::out | ios::binary);
   string inputLine = "";
   string  line = "";
   string x = "";
@@ -37,15 +39,27 @@ if (!infile) {
                 }    
           getline(infile, line); 
            cout << line << endl;
-	  cout << "Start reading file data: " << endl;
           charImage = new unsigned char [size];
+          unique_ptr<unsigned char[]> buffer(new unsigned char[size]);
+          infile.read((char*)buffer.get(), size);
  
-	  infile.read( reinterpret_cast<char *>(charImage), (size)*sizeof(unsigned char));
-	  cout << "Successfully read " << endl;
+	  //infile.read( reinterpret_cast<char *>(charImage), (size)*sizeof(unsigned char));
 	  infile.close();
 	  
-	  ofstream myfile;
-	  myfile.open ("binary.bin");
+	   cout << "start writing to out file" << endl;
+	    cout << "width: " << numrows << " height: " << numcols << endl;
+	    cout << "File size: " << size << endl;
+	    myfile << "P5" << endl;
+	    myfile << "#Dancan" << endl;
+	    myfile << numrows << " " << numcols << endl;
+	    myfile << 255 << endl;
+	    myfile.write((char*)buffer.get(), size);
+	   // myfile.write( reinterpret_cast<char *>(charImage), (size)*sizeof(unsigned char));
+	    myfile.close();
+	    cout << "out file closed" << endl;
+	  
+	 
+	 /* myfile.open ("binary.bin");
 	  for(row = 0; row < numrows; ++row) {
 	    for(col = 0; col < numcols; ++col) {
 	      	temp = charImage[row*numcols+col];
@@ -53,7 +67,7 @@ if (!infile) {
 
 	    }
 	   myfile.close();
-	  }
+	  }*/
             }
           
         }

@@ -118,23 +118,22 @@ void PGMimageProcessor::readImage(ifstream& infile)
         int numrows, numcols;
         int size;
         bool start = false;
-        while (getline(infile, line)) {
+           while (getline(infile, line)) {
 
             if (line != "P5" && line != "255" && line.at(0) != '#') {
                 stringstream ss(line);
                 if (start == false) {
-                    ss >> numrows;
                     ss >> numcols;
+                    ss >> numrows;
                     cout << numrows << " is " << numcols << endl;
                     size = numrows * numcols;
+                    
                     start = true;
-                }
-                
-	  cout << "Start reading file data: " << endl;
-          unsigned char *charImage = new unsigned char [size];
- 
-	  infile.read( reinterpret_cast<char *>(charImage), (size)*sizeof(unsigned char));
-	  cout << "Successfully read " << endl;
+                }    
+          getline(infile, line); 
+           cout << line << endl;
+          unique_ptr<unsigned char[]> buffer(new unsigned char[size]);
+          infile.read((char*)buffer.get(), size);
 	  infile.close();
             }
         }
