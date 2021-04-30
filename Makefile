@@ -1,10 +1,10 @@
-driver.exe: PGMimageProcessor.o driver.o
-	g++ PGMimageProcessor.o driver.o -o driver.exe -std=c++2a
+driver.exe: ConnectedComponent.o test.o
+	g++ ConnectedComponent.o test.o -o driver.exe -std=c++2a
 
-PGMimageProcessor.o: PGMimageProcessor.cpp
-	g++ -c PGMimageProcessor.cpp -o PGMimageProcessor.o -std=c++2a
-driver.o: driver.cpp
-	g++ -c driver.cpp -o driver.o -std=c++2a
+PGMimageProcessor.o: ConnectedComponent.cpp
+	g++ -c ConnectedComponent.cpp -o ConnectedComponent.o -std=c++2a
+test.o: test.cpp
+	g++ -c test.cpp -o test.o -std=c++2a
 clean:
 	rm *.o driver.exe 
 run:

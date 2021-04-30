@@ -3,10 +3,13 @@
 using namespace std;
 
 namespace DCHCAS001{
+
+int ConnectedComponent:: next = 0;
 //Default constructor
-ConnectedComponent::ConnectedComponent()
+ConnectedComponent::ConnectedComponent():
+	id(next)
 	{
-	next = 0;
+	next++;
 	}
 //Destructor
 ConnectedComponent::~ConnectedComponent()
@@ -14,79 +17,84 @@ ConnectedComponent::~ConnectedComponent()
 }
 //Custom constructor
 ConnectedComponent::ConnectedComponent(int pixels,vector< pair<int,int> > coordinates)
-	:pixels(pixels),
+	:pixels(pixels)
 	,coordinates(coordinates)
 	,id(next)
 	{
 	next++;
 	}
 //Copy constructor
-ConnectedComponent::ConnectedComponent(const ConnectedComponent& other):
+ConnectedComponent::ConnectedComponent(const ConnectedComponent& other)
 	:pixels(other.pixels)
 	,id(next)
 {
 next++;
 
- for (int i=0; i<other.size(); i++){
- 	this->coordinates.push_back(make_pair(other.coordinates[i].first,other.coordinates[i].second))
+ for (int i=0; i<other.coordinates.size(); i++){
+ 	this->coordinates.push_back(make_pair(other.coordinates[i].first,other.coordinates[i].second));
  }
 }
 //Copy Assignment operator
-ConnectedComponent::ConnectedComponent& operator=(ConnectedComponent& other)
+ConnectedComponent& ConnectedComponent::operator=(const ConnectedComponent& other)
 {
  if (this!= &other)
  {
  this->pixels = other.pixels;
+ this->id = next;
  next++;
- for (int i=0; i<other.size(); i++){
- 	this->coordinates.push_back(make_pair(other.coordinates[i].first,other.coordinates[i].second))
+ if(this->coordinates.size()!=0){
+ 	this->coordinates.clear();
+ for (int i=0; i<other.coordinates.size(); i++){
+ 	this->coordinates.push_back(make_pair(other.coordinates[i].first,other.coordinates[i].second));
  }
  }
+ }
+ return *this;
 }
 
 //Move constructor
 ConnectedComponent::ConnectedComponent(ConnectedComponent&& other)
-	:pixels(pixels),
-	,coordinates(coordinates)
+	:pixels(other.pixels)
+	,coordinates(other.coordinates)
 	,id(other.id)
 {
-other.id = -1;
+	other.id = -1;
+	other.pixels = 0;
+	other.coordinates.clear();
 }
 //Move assignment operator
-ConnectedComponent::ConnectedComponent& operator=(ConnectedComponent&& other)
+ConnectedComponent& ConnectedComponent::operator=(ConnectedComponent&& other)
 {
 if (this!= &other){
   this->pixels = other.pixels;
   this->id = other.id;
   other.id = -1;
-   for (int i=0; i<other.size(); i++){
- 	this->coordinates.push_back(make_pair(other.coordinates[i].first,other.coordinates[i].second))
- other.coordinates.clear();
+  this->coordinates = other.coordinates;
+  other.coordinates.clear();
 }
-}
+return *this;
 }
 //Accessors
-int getPixels() const
+int ConnectedComponent::getPixels() const
 {
 	return pixels;
 }
-int getId() const
+int ConnectedComponent::getId() const
 {
 	return id;
 }
-vector< pair<int,int> > getCoordinates()
+vector< pair<int,int> > ConnectedComponent::getCoordinates()
 {
 	return coordinates;
 }
 //Mutators
-void setPixels(int pixels) const
+void ConnectedComponent::setPixels(int pixels)
 {
 	this->pixels = pixels;
 }
-void setId(int id) const
+void ConnectedComponent::setId(int id)
 {
 	this->id = id;
 }
 }
 
-}

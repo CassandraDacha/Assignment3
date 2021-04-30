@@ -1,5 +1,5 @@
-#ifndef CONNECTEDCOMPONENTS_H_
-#define CONNECTEDCOMPONENTS_H_
+#ifndef __CONNECTEDCOMPONENTS__
+#define __CONNECTEDCOMPONENTS__
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -13,19 +13,19 @@ namespace DCHCAS001{
 class ConnectedComponent{
 private:
     int id,pixels;
+    std::vector<pair<int,int>> coordinates;
     static int next;
-    std::vector< std::pair<int,int> > coordinates;
 public:
 	//Default constructor
 	ConnectedComponent();
 	//Destructor
 	~ConnectedComponent();
 	//Custom constructor
-	ConnectedComponent(int pixels,int id,vector< pair<int,int> > coordinates);
+	ConnectedComponent(int pixels, vector< pair<int,int> > coordinates);
 	//Copy constructor
-	ConnectedComponent(ConnectedComponent& other);
+	ConnectedComponent(const ConnectedComponent& other);
 	//Copy Assignment operator
-	ConnectedComponent& operator=(ConnectedComponent& other);
+	ConnectedComponent& operator=(const ConnectedComponent& other);
 	//Move constructor
 	ConnectedComponent(ConnectedComponent&& other);
 	//Move assignment operator
@@ -34,8 +34,9 @@ public:
 	int getId() const;
 	vector< pair<int,int> > getCoordinates();
 	//Mutators
-	void setPixels(int pixels) const;
-	void setId(int id) const;
-}
+	void setPixels(int pixels);
+	void setId(int id);
+};
 
 }
+#endif
