@@ -115,6 +115,10 @@ int PGMimageProcessor::getRow() const
 {
     return row;
 }
+unique_ptr<unsigned char[]>& PGMimageProcessor::getData()
+{
+    return binary_data;
+}
 //Mutators
 void  PGMimageProcessor::setColumn(int col)
 {
@@ -142,15 +146,15 @@ ifstream infile;
             if (line != "P5" && line != "255" && line.at(0) != '#') {
                 stringstream ss(line);
                 if (start == false) {
-                    ss >> row;
                     ss >> col;
-                    cout << row << " is " << col << endl;
+                    ss >> row;
+                    //cout << col << " is " << row << endl;
                     size = row * col;
                     
                     start = true;
                 }    
           getline(infile, line); 
-           cout << line << endl;
+           //cout << line << endl;
           this->binary_data.reset(new unsigned char[size]);
           infile.read((char*)this->binary_data.get(), size);
 	  infile.close();
@@ -172,7 +176,7 @@ int PGMimageProcessor::extractComponents(unsigned char threshold, int minValidSi
 
 for (int i = 0; i < this->row; i++) {
 	for (int j = 0; j < this->col; j++) {
-	   if(*(this->binary_data.get() +i*col +j) > threshold){
+	   if(*(this->binary_data.get() +i*col +j) >= threshold){
 	   ConnectedComponent Comp;
 	   queue<pair<int, int>> visit;
 	   	visit.push(make_pair(i,j));
@@ -183,22 +187,22 @@ for (int i = 0; i < this->row; i++) {
 	   	*(this->binary_data.get() +s.first*col +(s.second))=0;
 	   	visit.pop();
 	   	
-		if(*(this->binary_data.get() +s.first*col +(s.second+1))> threshold)
+		if(*(this->binary_data.get() +s.first*col +(s.second+1))>= threshold)
 	   	{
 	   		visit.push(make_pair(s.first,s.second+1));
 	   		*(this->binary_data.get() +s.first*col +(s.second+1)) =0;
 	   	}
-	   	if(*(this->binary_data.get() +(s.first-1)*col +(s.second)) > threshold)
+	   	if(*(this->binary_data.get() +(s.first-1)*col +(s.second)) >= threshold)
 	   	{
 	   		visit.push(make_pair(s.first-1,s.second));
 	   		*(this->binary_data.get() +(s.first-1)*col +(s.second))=0;
 	   	}
-	   	if(*(this->binary_data.get() +(s.first+1)*col +(s.second)) > threshold)
+	   	if(*(this->binary_data.get() +(s.first+1)*col +(s.second)) >= threshold)
 	   	{
 	   		visit.push(make_pair(s.first+1,s.second));
 	   		*(this->binary_data.get() +(s.first+1)*col +(s.second))  =0;
 	   	}
-	   	if(*(this->binary_data.get() +(s.first)*col +(s.second-1)) > threshold)
+	   	if(*(this->binary_data.get() +(s.first)*col +(s.second-1)) >= threshold)
 	   	{
 	   		visit.push(make_pair(s.first,s.second-1));
 	   		*(this->binary_data.get() +(s.first)*col +(s.second-1)) =0;
@@ -212,8 +216,8 @@ for (int i = 0; i < this->row; i++) {
 	   }
 }
 }
-
-return components.size();
+int x = components.size();
+return x;
 }
 /* iterate - with an iterator - though your container of connected
 components and filter out (remove) all the components which do not
@@ -225,7 +229,7 @@ int PGMimageProcessor::filterComponentsBySize(int minSize, int maxSize)
 
 for (auto it = components.begin(); it != components.end(); it++)
 {
-	if((*(*it)).getPixels() > minSize && (*(*it)).getPixels() < maxSize ){
+	if(!((*(*it)).getPixels() > minSize && (*(*it)).getPixels() < maxSize )){
 		components.erase(it);
 		it--;
 		
@@ -263,23 +267,40 @@ bool PGMimageProcessor::writeComponents(const std::string & outFileName){
         return false;
    	 }
 	else{
- 	cout << "start writing to out file" << endl;
- 	cout << "width: " << col << " height: " << row << endl;
-	cout << "File size: " << size << endl;
+ 	//cout << "start writing to out file" << endl;
+ 	//cout << "width: " << col << " height: " << row << endl;
+	//cout << "File size: " << size << endl;
  	out << "P5" << endl;
 	out << "#Cassandra" << endl;
  	out << col << " " << row << endl;
  	out << 255 << endl;
 	out.write(buffer, size);
  	out.close();
-	cout << "out file closed" << endl;
+	//cout << "out file closed" << endl;
 	return true;
 	}
 }
 
+
 // return number of pixels in largest component
 int PGMimageProcessor::getLargestSize(void) const{
-	return components.size();
+	int maxSize = -1;
+for (auto it = components.begin(); it != components.end(); it++)
+{	
+	if(maxSize = -1){
+		maxSize = (*(*it)).getPixels();
+	}
+	else if ((*(*it)).getPixels() > maxSize ){
+		maxSize = (*(*it)).getPixels();
+		
+	}
+}
+	return maxSize;
+}
+
+// return number of components
+int PGMimageProcessor::getComponentCount(void) const{
+	return this->components.size();
 }
 // return number of pixels in smallest component
 int PGMimageProcessor::getSmallestSize(void) const{

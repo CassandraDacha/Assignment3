@@ -8,6 +8,7 @@ int ConnectedComponent:: next = 0;
 //Default constructor
 ConnectedComponent::ConnectedComponent():
 	id(next)
+	,pixels(0)
 	{
 	next++;
 	}
