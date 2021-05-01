@@ -36,6 +36,7 @@ public:
 	//Mutators
 	void setPixels(int pixels);
 	void setId(int id);
+	void setCoordinates(pair <int,int> num);
 };
 
 }

@@ -96,5 +96,10 @@ void ConnectedComponent::setId(int id)
 {
 	this->id = id;
 }
+void ConnectedComponent::setCoordinates(pair <int,int> num)
+{
+	coordinates.push_back(num);
+	this->pixels++;
+}
 }
 
