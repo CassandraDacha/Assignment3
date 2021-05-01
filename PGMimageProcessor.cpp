@@ -174,16 +174,17 @@ int PGMimageProcessor::extractComponents(unsigned char threshold, int minValidSi
 
 
 
-for (int i = 0; i < this->row; i++) {
-	for (int j = 0; j < this->col; j++) {
+for (int i = 1; i < this->row-1; i++) {
+	for (int j = 1; j < this->col-1; j++) {
 	   if(*(this->binary_data.get() +i*col +j) >= threshold){
-	   ConnectedComponent Comp;
+	   //ConnectedComponent Comp;
+	   unique_ptr<ConnectedComponent> temp(new ConnectedComponent());  
 	   queue<pair<int, int>> visit;
 	   	visit.push(make_pair(i,j));
 	   while(!visit.empty())
 	   {
 	   	pair<int,int> s = visit.front();
-	   	Comp.setCoordinates(s);
+	   	(*temp).setCoordinates(s);
 	   	*(this->binary_data.get() +s.first*col +(s.second))=0;
 	   	visit.pop();
 	   	
@@ -208,14 +209,15 @@ for (int i = 0; i < this->row; i++) {
 	   		*(this->binary_data.get() +(s.first)*col +(s.second-1)) =0;
 	   	}
 	   }
-	   if(Comp.getPixels() > minValidSize){
- 	 	unique_ptr<ConnectedComponent> temp(new ConnectedComponent(Comp));   
+	   if((*temp).getPixels() > minValidSize){
+ 	 	//unique_ptr<ConnectedComponent> temp(new ConnectedComponent(Comp));   
   		this->components.push_back(move(temp));
  		 }
 	   
 	   }
 }
 }
+
 int x = components.size();
 return x;
 }
@@ -235,6 +237,7 @@ for (auto it = components.begin(); it != components.end(); it++)
 		
 	}
 }
+
 return components.size();
 }
 /* create a new PGM file which contains all current components
@@ -267,9 +270,7 @@ bool PGMimageProcessor::writeComponents(const std::string & outFileName){
         return false;
    	 }
 	else{
- 	//cout << "start writing to out file" << endl;
- 	//cout << "width: " << col << " height: " << row << endl;
-	//cout << "File size: " << size << endl;
+
  	out << "P5" << endl;
 	out << "#Cassandra" << endl;
  	out << col << " " << row << endl;
@@ -326,5 +327,15 @@ void PGMimageProcessor::printComponentData(const ConnectedComponent & theCompone
 	cout<<"Component Id is" << theComponent.getId() << " Component pixels are " << theComponent.getPixels() << endl;
 
 }
-	
+
+void PGMimageProcessor::printAllComponents(void) const
+{
+for (auto it = components.begin(); it != components.end(); it++)
+	{
+	cout<<"Component Id is " << (*(*it)).getId() << " Component pixels are " << (*(*it)).getPixels() << endl;
+	}
+	cout<<"The number of components  is " <<getComponentCount()<<endl;
+	cout<<"The smallest Component  is " << getSmallestSize() << endl;
+
+}	
 }

@@ -15,6 +15,10 @@ findcomp.o: findcomp.cpp
 
 clean:
 	rm *.o test.exe findcomp
-run:
+test:
 	./test.exe
 
+run:
+	./findcomp
+
+	

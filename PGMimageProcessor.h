@@ -54,6 +54,7 @@ public:
 	int getLargestSize(void) const;
 	int getSmallestSize(void) const;
 	void printComponentData(const ConnectedComponent & theComponent) const;
+	void printAllComponents(void) const;
 	};
 }
 #endif
